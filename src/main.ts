@@ -22,7 +22,7 @@ export default class BJJPlugin extends Plugin {
 
 		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
 		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText('Jiu jitsu graphing');
+		statusBarItemEl.setText('Jiu Jitsu graphing');
 
 		// This adds a simple command that can be triggered anywhere
 		this.addCommand({
@@ -53,7 +53,7 @@ export default class BJJPlugin extends Plugin {
 					// If checking is true, we're simply "checking" if the command can be run.
 					// If checking is false, then we want to actually perform the operation.
 					if (!checking) {
-						new BJJModal(this.app).open();
+						this.openBJJModal();
 					}
 
 					// This command will only show up in Command Palette when the check function returns true
@@ -85,18 +85,58 @@ export default class BJJPlugin extends Plugin {
 		await this.saveData(this.settings);
 	}
 
-	openBJJModal() {
-    new BJJModal(this.app).open();
-  	}
+	findPaths(
+		operation: "path",
+		from: string,
+		to: string,
+		length?: number
+	) {
+		console.debug(`Finding BJJ path from ${from} to ${to} with max length ${length}`);
+	}
+	
+
+openBJJModal() {
+	new BJJModal (
+		this.app,
+		this.findPaths.bind(this, "path"), //TODO add the findPaths function 
+		// Object.assign({}, this.settings.filter),
+		"path"
+	).open();
+	}
 }
 
 class BJJModal extends Modal {
-	constructor(app: App) {
+	to: string;
+	Form: string;
+	length: number = 10;
+	operation: "path";
+	callback: (
+		from: string,
+		to: string,
+		length?: number
+	) => void;
+
+
+	constructor(
+		app: App,
+		callback: (
+			from: string,
+			to: string,
+			length?: number
+		) => void,
+		operation: "path"
+	) {
 		super(app);
+		this.callback = callback;
+		this.operation = operation;
 	}
 
 	onOpen() {
 		let {contentEl} = this;
+				if (this.operation == "path") {
+			contentEl.createEl("h1", { text: "Get BJJ path" });
+		}
+		
 		contentEl.setText('Bjj graphing coming soon!');
 	}
 
